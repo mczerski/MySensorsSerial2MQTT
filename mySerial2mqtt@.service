@@ -1,0 +1,10 @@
+[Unit]
+Description=MySensors Serial Gateway to MQTT daemon @%I
+Requires=network.target
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/local/bin/serial2mqtt --device /dev/%I
+
+[Install]
+WantedBy=multi-user.target
