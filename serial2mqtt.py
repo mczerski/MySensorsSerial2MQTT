@@ -33,7 +33,7 @@ class Serial2MQTT:
         self._mqttClient.connect(host, port)
         self._mqttClient.subscribe(self._rootTopic + "in/#")
         self._mqttClient.on_message = self._mqtt_on_message
-        ser = serial.Serial(args.device, 115200, timeout=1)
+        ser = serial.Serial(args.device, 38400, timeout=1)
         self._serialClient = ReaderThread(ser, lambda: MySerialReader(self._rootTopic, self._mqttClient))
         self._serialProtocol = None
 
