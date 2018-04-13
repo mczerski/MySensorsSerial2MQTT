@@ -30,12 +30,16 @@ class Serial2MQTT:
     def __init__(self, device, host, port, rootTopic):
         self._rootTopic = rootTopic
         self._mqttClient = mqtt.Client()
-        self._mqttClient.connect(host, port)
-        self._mqttClient.subscribe(self._rootTopic + "in/#")
+        self._mqttClient.on_connect = self._mqtt_on_connect
         self._mqttClient.on_message = self._mqtt_on_message
+        self._mqttClient.connect_async(host, port)
         ser = serial.Serial(args.device, 38400, timeout=1)
         self._serialClient = ReaderThread(ser, lambda: MySerialReader(self._rootTopic, self._mqttClient))
         self._serialProtocol = None
+
+    def _mqtt_on_connect(self, client, userdata, flags, rc):
+        print("Connected with result code " + str(rc))
+        self._mqttClient.subscribe(self._rootTopic + "in/#")
 
     def _mqtt_on_message(self, client, obj, msg):
         payload = msg.payload.decode("utf-8")
