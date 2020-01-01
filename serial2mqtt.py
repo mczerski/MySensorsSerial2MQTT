@@ -25,11 +25,11 @@ class MySerialReader(LineReader):
         if fields[4] == self.I_LOG_MESSAGE:
             return
         topic = "/".join([self._rootTopic+'out'] + fields[:-1])
-        print(f'sending topic: {topic}. payload: {fields[-1]}')
+        print('sending topic: {}. payload: {}'.format(topic, fields[-1]))
         self._mqttClient.publish(topic, fields[-1])
 
     def connection_lost(self, exc):
-        print(f'Serial connection lost: {exc}')
+        print('Serial connection lost: {}'.format(exc))
         self._connection_lost = True
 
 class Serial2MQTT:
@@ -45,14 +45,14 @@ class Serial2MQTT:
 
     def _mqtt_on_connect(self, client, userdata, flags, rc):
         self._mqttClient.subscribe(self._rootTopic + "in/#")
-        print(f'Connected with result code [{rc}]')
+        print('Connected with result code [{}]'.format(rc))
 
     def _mqtt_on_message(self, client, obj, msg):
         payload = msg.payload.decode("utf-8")
-        print(f'received topic: {msg.topic}. payload: {payload}')
+        print('received topic: {}. payload: {}'.format(msg.topic, payload))
         fields = msg.topic.split('/')
         data = ";".join(fields[1:] + [payload])
-        print(f'writing msg: {data}')
+        print('writing msg: {}'.format(data))
         self._serialProtocol.write_line(data)
 
     def run(self):

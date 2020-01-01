@@ -1,0 +1,11 @@
+[Unit]
+Description=MySensors Serial Gateway to MQTT daemon
+Requires=network.target
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/local/bin/serial2mqtt --device /dev/serial/by-id/usb-Arduino_LLC_Arduino_Leonardo-if00
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

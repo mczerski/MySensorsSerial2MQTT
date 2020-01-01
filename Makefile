@@ -22,10 +22,10 @@ install:
 	$(INSTALL_PROGRAM) serial2mqtt.py "$(BINDIR)/serial2mqtt"
 	$(Q)echo -e '\033[1;32mInstalling systemd files...\033[0m'
 	$(INSTALL_DIR) "$(INITDIR_SYSTEMD)"
-	$(INSTALL_DATA) mySerial2mqtt@.service "$(INITDIR_SYSTEMD)/mySerial2mqtt@.service"
+	$(INSTALL_DATA) mySerial2mqtt.service "$(INITDIR_SYSTEMD)/mySerial2mqtt.service"
 
 uninstall:
-	$(RM) "$(INITDIR_SYSTEMD)/mySerial2mqtt@.service"
+	$(RM) "$(INITDIR_SYSTEMD)/mySerial2mqtt.service"
 	$(RM) "$(BINDIR)/serial2mqtt"
 
 .PHONY: install uninstall
