@@ -5,6 +5,7 @@ Requires=network.target
 [Service]
 Environment=PYTHONUNBUFFERED=1
 ExecStart=/usr/local/bin/serial2mqtt --device /dev/%I
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

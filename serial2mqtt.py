@@ -5,6 +5,7 @@ import serial
 from serial.threaded import ReaderThread, LineReader
 import time
 import argparse
+import sys
 
 class MySerialReader(LineReader):
     TERMINATOR = b'\n'
@@ -14,6 +15,7 @@ class MySerialReader(LineReader):
         super(MySerialReader, self).__init__()
         self._rootTopic = rootTopic
         self._mqttClient = mqttClient
+        self._connection_lost = False
 
     def handle_line(self, line):
         print(line)
@@ -23,8 +25,12 @@ class MySerialReader(LineReader):
         if fields[4] == self.I_LOG_MESSAGE:
             return
         topic = "/".join([self._rootTopic+'out'] + fields[:-1])
-        print('sending topic: %s. payload: %s' % (topic, fields[-1]))
+        print(f'sending topic: {topic}. payload: {fields[-1]}')
         self._mqttClient.publish(topic, fields[-1])
+
+    def connection_lost(self, exc):
+        print(f'Serial connection lost: {exc}')
+        self._connection_lost = True
 
 class Serial2MQTT:
     def __init__(self, device, host, port, rootTopic):
@@ -38,15 +44,15 @@ class Serial2MQTT:
         self._serialProtocol = None
 
     def _mqtt_on_connect(self, client, userdata, flags, rc):
-        print("Connected with result code " + str(rc))
         self._mqttClient.subscribe(self._rootTopic + "in/#")
+        print(f'Connected with result code [{rc}]')
 
     def _mqtt_on_message(self, client, obj, msg):
         payload = msg.payload.decode("utf-8")
-        print ('received topic: %s. payload: %s' % (msg.topic, payload))
+        print(f'received topic: {msg.topic}. payload: {payload}')
         fields = msg.topic.split('/')
         data = ";".join(fields[1:] + [payload])
-        print ('writing msg: %s' % data)
+        print(f'writing msg: {data}')
         self._serialProtocol.write_line(data)
 
     def run(self):
@@ -71,7 +77,9 @@ serial2Mqtt.run()
 
 try:
     while True:
-        time.sleep(100)
+        time.sleep(1)
+        if serial2Mqtt._serialProtocol is not None and serial2Mqtt._serialProtocol._connection_lost:
+            raise RuntimeError('serial connection lost')
 except:
     serial2Mqtt.stop()
-
+    sys.exit(1)
