@@ -6,6 +6,7 @@ Requires=network.target
 Environment=PYTHONUNBUFFERED=1
 ExecStart=/usr/local/bin/serial2mqtt --device /dev/serial/by-id/usb-Arduino_LLC_Arduino_Leonardo-if00
 Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
