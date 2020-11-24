@@ -26,7 +26,7 @@ class MySerialReader(LineReader):
             return
         topic = "/".join([self._rootTopic+'out'] + fields[:-1])
         print('sending topic: {}. payload: {}'.format(topic, fields[-1]))
-        self._mqttClient.publish(topic, fields[-1])
+        self._mqttClient.publish(topic, fields[-1], retain=True)
 
     def connection_lost(self, exc):
         print('Serial connection lost: {}'.format(exc))
@@ -35,7 +35,7 @@ class MySerialReader(LineReader):
 class Serial2MQTT:
     def __init__(self, device, host, port, rootTopic):
         self._rootTopic = rootTopic
-        self._mqttClient = mqtt.Client()
+        self._mqttClient = mqtt.Client(client_id='mysensors', clean_session=False)
         self._mqttClient.on_connect = self._mqtt_on_connect
         self._mqttClient.on_message = self._mqtt_on_message
         self._mqttClient.connect_async(host, port)
