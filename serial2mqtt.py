@@ -25,8 +25,11 @@ class MySerialReader(LineReader):
         if fields[4] == self.I_LOG_MESSAGE:
             return
         topic = "/".join([self._rootTopic+'out'] + fields[:-1])
-        print('sending topic: {}. payload: {}'.format(topic, fields[-1]))
-        self._mqttClient.publish(topic, fields[-1], retain=True)
+        retain = True
+        if len(fields) == 6 and fields[-2] in ['19', '20']:
+            retain = False
+        print('sending topic: {}. payload: {}, retain: {}'.format(topic, fields[-1], retain))
+        self._mqttClient.publish(topic, fields[-1], retain=retain)
 
     def connection_lost(self, exc):
         print('Serial connection lost: {}'.format(exc))
